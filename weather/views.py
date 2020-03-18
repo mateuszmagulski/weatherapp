@@ -1,9 +1,16 @@
 import requests
 from django.shortcuts import render
 from .models import City
+from .forms import CityForm
 
 def index(request):
     url = "http://api.openweathermap.org/data/2.5/weather?q={}&units=metric&appid=fca2224ce6af72370f76db5917959647"
+
+    if request.method == "POST":
+        form = CityForm(request.POST)
+        form.save()
+
+    form = CityForm()
 
     cities = City.objects.all()
 
@@ -12,7 +19,7 @@ def index(request):
     for city in cities:
         
         r = requests.get(url.format(city)).json()
-
+        print(r)
         city_weather = {
             "city": city.name,
             "temperature": r["main"]["temp"],
@@ -22,5 +29,5 @@ def index(request):
 
         weather_data.append(city_weather)
 
-    context = {"weather_data": weather_data}
+    context = {"weather_data":weather_data, "form":form}
     return render(request, 'weather/weather.html', context)
