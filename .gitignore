@@ -1,5 +1,4 @@
 *.sqlite3
 .vscode
 __pycache__
-migrations
 the_weather_env
