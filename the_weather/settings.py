@@ -25,7 +25,9 @@ SECRET_KEY = 'upcplq1$ayok==0zu96hh$9*s6y46^&^l20l70xy@p4yk1(r3q'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'weatherdjangoapp.herokuapp.com',
+]
 
 
 # Application definition
