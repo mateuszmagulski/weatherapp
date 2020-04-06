@@ -8,11 +8,11 @@ from rest_framework.response import Response
 from .models import City
 from .forms import CityForm
 from .serializers import CitySerializer
+from .services import is_city_valid
 
 def index(request):
     url = "http://api.openweathermap.org/data/2.5/weather?q={}&units=metric&appid=fca2224ce6af72370f76db5917959647"
 
-    err_msg = ""
     message = ""
     message_class = ""
 
@@ -21,24 +21,16 @@ def index(request):
 
         if form.is_valid():
             new_city = form.cleaned_data["name"].title()
-            existing_city_count = City.objects.filter(name=new_city).count()
-            
-            if existing_city_count == 0:
-                r = requests.get(url.format(new_city)).json()
 
-                if r["cod"] == 200:
-                    City.objects.create(name=new_city)
-                else:
-                    err_msg = "City does not exist in the world!"
+            check_city = is_city_valid(new_city)
+            
+            if check_city["action"]:
+                City.objects.create(name=new_city)
+                message = "City added successfully!"
+                message_class = "is-success"
             else:
-                err_msg = "City already exists in the database!"
-        
-        if err_msg:
-            message = err_msg
-            message_class = "is-danger"
-        else:
-            message = "City added successfully!"
-            message_class = "is-success"
+                message = check_city["err_msg"]
+                message_class = "is-danger"
 
     form = CityForm()
 
@@ -101,44 +93,28 @@ def api_details(request, pk):
 @api_view(["POST"])
 def api_create(request):
 
-    url = "http://api.openweathermap.org/data/2.5/weather?q={}&units=metric&appid=fca2224ce6af72370f76db5917959647"
-
-    err_msg = ""
     message = ""
-    message_class = ""
 
     serializer = CitySerializer(data=request.data)
 
     if serializer.is_valid():
+        
         new_city = request.data["name"].title()
-        
-        existing_city_count = City.objects.filter(name=new_city).count()
-        
-        if existing_city_count == 0:
-            r = requests.get(url.format(new_city)).json()
 
-            if r["cod"] == 200:
-                City.objects.create(name=new_city)
-            else:
-                err_msg = "City does not exist in the world!"
+        check_city = is_city_valid(new_city)
+            
+        if check_city["action"]:
+            City.objects.create(name=new_city)
+            message = "City added successfully!"
         else:
-            err_msg = "City already exists in the database!"
-    
-    if err_msg:
-        message = err_msg
-    else:
-        message = "City added successfully!"
+            message = check_city["err_msg"]
 
     return Response(message)
 
 @api_view(["POST"])
 def api_update(request, pk):
 
-    url = "http://api.openweathermap.org/data/2.5/weather?q={}&units=metric&appid=fca2224ce6af72370f76db5917959647"
-
-    err_msg = ""
     message = ""
-    message_class = ""
 
     city = City.objects.get(pk=pk)
     serializer = CitySerializer(instance=city, data=request.data )
@@ -146,22 +122,13 @@ def api_update(request, pk):
     if serializer.is_valid():
         new_city = request.data["name"].title()
         
-        existing_city_count = City.objects.filter(name=new_city).count()
-        
-        if existing_city_count == 0:
-            r = requests.get(url.format(new_city)).json()
-
-            if r["cod"] == 200:
-                serializer.save()
-            else:
-                err_msg = "City does not exist in the world!"
+        check_city = is_city_valid(new_city)
+            
+        if check_city["action"]:
+            City.objects.create(name=new_city)
+            message = "City added successfully!"
         else:
-            err_msg = "City already exists in the database!"
-    
-    if err_msg:
-        message = err_msg
-    else:
-        message = "City updated successfully!"
+            message = check_city["err_msg"]
 
     return Response(message)
 
