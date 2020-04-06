@@ -12,7 +12,7 @@ class TestViews(TestCase):
         self.city = City.objects.create(
             name="Gdynia"
         )
-        self.delete_city_url = reverse("delete_city", args=['Gdynia'])
+        self.delete_city_url = reverse("delete_city", args=[1])
 
 
     def test_index_GET(self):

@@ -11,5 +11,5 @@ class TestUrls(SimpleTestCase):
         self.assertEquals(resolve(url).func, index)
 
     def test_delete_city_url_resolves(self):
-        url = reverse('delete_city', args=['city_name'])
+        url = reverse('delete_city', args=[1])
         self.assertEquals(resolve(url).func, delete_city)
